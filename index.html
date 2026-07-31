@@ -637,28 +637,39 @@
         initUserSession();
         requestAnimationFrame(gameLoop);
     </script>
-    // Import các hàm cần thiết từ SDK
-import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database"; // Thêm dòng này nếu bạn dùng Realtime Database
+    <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase App của tôi</title>
+</head>
+<body>
+    
+    <!-- Code HTML của bạn ở đây -->
 
-// Cấu hình Firebase của web app
-const firebaseConfig = {
-  apiKey: "AIzaSyBdjd7qONQQuUAmkMK-rP-zCp06rnyRYks",
-  authDomain: "gamevn-f6cc8.firebaseapp.com",
-  databaseURL: "https://gamevn-f6cc8-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "gamevn-f6cc8",
-  storageBucket: "gamevn-f6cc8.firebasestorage.app",
-  messagingSenderId: "147617412521",
-  appId: "1:147617412521:web:8143e0c93823accc9480b8"
-};
+    <!-- Nhúng Firebase bằng module script -->
+    <script type="module">
+        // Import Firebase từ CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// Khởi tạo Firebase
-const app = initializeApp(firebaseConfig);
+        // Cấu hình Firebase của bạn
+        const firebaseConfig = {
+          apiKey: "AIzaSyBdjd7qONQQuUAmkMK-rP-zCp06rnyRYks",
+          authDomain: "gamevn-f6cc8.firebaseapp.com",
+          databaseURL: "https://gamevn-f6cc8-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "gamevn-f6cc8",
+          storageBucket: "gamevn-f6cc8.firebasestorage.app",
+          messagingSenderId: "147617412521",
+          appId: "1:147617412521:web:8143e0c93823accc9480b8"
+        };
 
-// Khởi tạo các dịch vụ (Ví dụ: Realtime Database)
-const database = getDatabase(app);
+        // Khởi tạo Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-// Export ra để sử dụng ở các file khác
-export { app, database };
+        console.log("Đã kết nối Firebase thành công!");
+    </script>
 </body>
 </html>
