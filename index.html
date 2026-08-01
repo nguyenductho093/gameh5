@@ -3,589 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gà Vịt Ngổng - Casino Sinh Viên</title>
-    <!-- Firebase SDK (Version 8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Quicksand:wght@400;700&display=swap');
-
-        :root {
-            --bg-color: #0f0c29;
-            --panel-bg: rgba(20, 20, 40, 0.8);
-            --primary: #00e5ff;
-            --secondary: #ff007c;
-            --text-light: #ffffff;
-            --ga-color: #ffaa00;
-            --vit-color: #00ff88;
-            --ngong-color: #ff0055;
-        }
-
-        body {
-            margin: 0; padding: 0;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            color: var(--text-light);
-            font-family: 'Quicksand', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ADMIN TEXT */
-        .admin-text {
-            position: fixed;
-            top: 15px; left: 50%;
-            transform: translateX(-50%);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px; font-weight: 900;
-            color: #fff;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000, 0 0 80px #ff0000;
-            z-index: 1000;
-            pointer-events: none;
-            animation: pulse-glow 2s infinite;
-        }
-        @keyframes pulse-glow {
-            0%, 100% { text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
-            50% { text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000, 0 0 60px #ff0000; }
-        }
-
-        .header-info {
-            display: flex; justify-content: space-between;
-            padding: 20px;
-            background: rgba(0,0,0,0.5);
-            border-bottom: 2px solid var(--primary);
-            box-shadow: 0 0 15px var(--primary);
-        }
-
-        .balance-box {
-            font-size: 20px; font-weight: bold;
-            color: #00e5ff; text-shadow: 0 0 5px #00e5ff;
-        }
-
-        .main-container {
-            display: flex; flex: 1; padding: 20px; gap: 20px;
-        }
-
-        /* Left Panel: Chat & Transfer */
-        .sidebar {
-            width: 300px;
-            background: var(--panel-bg);
-            border-radius: 15px; padding: 15px;
-            display: flex; flex-direction: column; gap: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .box-title { font-family: 'Orbitron'; color: var(--secondary); margin-bottom: 10px; border-bottom: 1px solid var(--secondary); padding-bottom: 5px;}
-        
-        .chat-box { flex: 1; overflow-y: auto; background: #000; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 14px;}
-        .chat-input-grp { display: flex; gap: 5px; }
-        input, button { padding: 10px; border-radius: 8px; border: none; outline: none; font-family: 'Quicksand';}
-        input { background: #2a2a4a; color: #fff; width: 100%;}
-        button { background: var(--primary); color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { box-shadow: 0 0 10px var(--primary); }
-
-        /* Center Panel: Game */
-        .game-area {
-            flex: 1;
-            background: var(--panel-bg);
-            border-radius: 15px; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        .status-bar {
-            display: flex; align-items: center; gap: 30px; margin-bottom: 20px;
-        }
-        
-        .timer {
-            font-family: 'Orbitron'; font-size: 40px; color: var(--secondary);
-            text-shadow: 0 0 15px var(--secondary);
-        }
-
-        .dice-container {
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
-            margin-bottom: 20px; max-width: 600px;
-        }
-        .die {
-            width: 50px; height: 50px;
-            background: #fff; color: #000;
-            border-radius: 10px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 24px; font-weight: bold; font-family: 'Orbitron';
-            box-shadow: inset 0 0 10px #ccc, 0 0 10px #fff;
-            transition: transform 0.2s;
-        }
-        .rolling .die { animation: shake 0.5s infinite; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            50% { transform: translate(-1px, -2px) rotate(-10deg); }
-            100% { transform: translate(1px, -1px) rotate(10deg); }
-        }
-
-        .result-display {
-            font-family: 'Orbitron'; font-size: 30px; margin-bottom: 20px; min-height: 40px;
-        }
-        .jackpot-text {
-            font-size: 40px; color: #ffff00;
-            text-shadow: 0 0 20px #ffff00, 0 0 40px #ffaa00;
-            animation: pulse-glow 1s infinite;
-        }
-
-        /* Betting Area */
-        .bet-area { width: 100%; display: flex; gap: 20px; justify-content: center; }
-        .bet-col {
-            flex: 1; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px; text-align: center;
-            border: 2px solid transparent; cursor: pointer; transition: 0.3s;
-        }
-        .bet-col:hover { background: rgba(255,255,255,0.1); }
-        .bet-col.active { border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
-        .bet-col h2 { margin: 0 0 10px; font-family: 'Orbitron'; }
-        
-        .col-ga h2 { color: var(--ga-color); text-shadow: 0 0 10px var(--ga-color); }
-        .col-vit h2 { color: var(--vit-color); text-shadow: 0 0 10px var(--vit-color); }
-        .col-ngong h2 { color: var(--ngong-color); text-shadow: 0 0 10px var(--ngong-color); }
-
-        .bet-buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
-        .bet-buttons button { flex: 1; min-width: 80px; }
-        .btn-allin { background: var(--secondary); color: #fff;}
-
-        /* Right Panel: History */
-        .history-area {
-            width: 250px; background: var(--panel-bg);
-            border-radius: 15px; padding: 15px;
-            display: flex; flex-direction: column;
-        }
-        .history-list {
-            display: flex; flex-wrap: wrap; gap: 5px;
-        }
-        .hist-dot {
-            width: 30px; height: 30px; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold; color: #000; font-size: 12px;
-        }
-        .dot-Ga { background: var(--ga-color); box-shadow: 0 0 5px var(--ga-color);}
-        .dot-Vit { background: var(--vit-color); box-shadow: 0 0 5px var(--vit-color);}
-        .dot-Ngong { background: var(--ngong-color); box-shadow: 0 0 5px var(--ngong-color);}
-        
-        /* Notifications */
-        #notification {
-            position: fixed; top: 80px; right: 20px;
-            background: rgba(0,255,136,0.9); color: #000;
-            padding: 15px 25px; border-radius: 10px; font-weight: bold;
-            transform: translateX(200%); transition: 0.5s; z-index: 2000;
-        }
-        #notification.show { transform: translateX(0); }
-        #notification.lose { background: rgba(255,0,85,0.9); color: #fff; }
-
-    </style>
+    <title>Game Xúc Xắc Anime - Admin Nguyễn Đức Thọ</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="overlay"></div>
+    <div class="admin-watermark">Admin : Nguyễn Đức Thọ</div>
 
-    <div class="admin-text">Admin : Nguyễn Đức Thọ</div>
-
-    <div class="header-info">
-        <div>Player: <span id="playerNameDisplay" style="color:var(--secondary)">Loading...</span></div>
-        <div class="balance-box">Số dư: <span id="balanceDisplay">5,000,000</span> VNĐ</div>
-    </div>
-
-    <div class="main-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="box-title">Chuyển Tiền</div>
-            <input type="text" id="transferUser" placeholder="Tên người nhận">
-            <input type="number" id="transferAmt" placeholder="Số tiền (VNĐ)">
-            <button onclick="transferMoney()">Chuyển ngay</button>
-
-            <div class="box-title" style="margin-top: 15px;">Kênh Chat</div>
-            <div class="chat-box" id="chatBox"></div>
-            <div class="chat-input-grp">
-                <input type="text" id="chatMsg" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendChat()">
-                <button onclick="sendChat()">Gửi</button>
+    <div class="container">
+        <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
+        <div id="auth-screen" class="panel">
+            <div class="auth-box">
+                <h2>CỔNG GAME XÚC XẮC</h2>
+                <input type="email" id="email" placeholder="Email của bạn">
+                <input type="password" id="password" placeholder="Mật khẩu">
+                <button class="btn" onclick="login()">Đăng Nhập</button>
+                <button class="btn" style="background:#00d2ff; color:#000;" onclick="register()">Đăng Ký</button>
+                <p id="auth-error" style="color: #ff4444; font-size: 14px;"></p>
             </div>
         </div>
 
-        <!-- Game Area -->
-        <div class="game-area">
-            <div class="status-bar">
-                <div class="timer" id="timerDisplay">12.0s</div>
-                <div>Đang cược: <span id="currentBetInfo" style="color:var(--primary); font-weight:bold;">Chưa cược</span></div>
-            </div>
-
-            <div class="dice-container" id="diceContainer">
-                <!-- 10 Dices will be generated here -->
-            </div>
-            
-            <div class="result-display" id="resultDisplay">Đang chờ...</div>
-
-            <div class="bet-area">
-                <div class="bet-col col-ga" onclick="selectCategory('Ga')" id="col-Ga">
-                    <h2>GÀ</h2>
-                    <p>10 - 40 điểm</p>
-                    <p>Tiền cược: <span id="betAmt-Ga">0</span></p>
+        <!-- MÀN HÌNH GAME CHÍNH -->
+        <div id="game-screen" class="hidden">
+            <div class="main-game">
+                <!-- Thông tin -->
+                <div class="panel player-info">
+                    <span id="player-email">Loading...</span>
+                    <span>Số dư: <span class="balance" id="player-balance">0 VNĐ</span></span>
+                    <button class="btn" style="background: #555;" onclick="logout()">Đăng Xuất</button>
                 </div>
-                <div class="bet-col col-vit" onclick="selectCategory('Vit')" id="col-Vit">
-                    <h2>VỊT</h2>
-                    <p>41 - 59 điểm</p>
-                    <p>Tiền cược: <span id="betAmt-Vit">0</span></p>
+
+                <!-- Bàn chơi xúc xắc -->
+                <div class="panel board">
+                    <div class="timer-display" id="timer">12s</div>
+                    <div id="jackpot-alert" class="jackpot-text">NỔ HŨ!</div>
+                    <h3 id="current-result-text">Đang chờ phiên mới...</h3>
+                    <div class="dice-container" id="dice-container">
+                        <!-- Xúc xắc render tại đây -->
+                    </div>
                 </div>
-                <div class="bet-col col-ngong" onclick="selectCategory('Ngong')" id="col-Ngong">
-                    <h2>NGỔNG</h2>
-                    <p>60 - 100 điểm</p>
-                    <p>Tiền cược: <span id="betAmt-Ngong">0</span></p>
+
+                <!-- Đặt cược -->
+                <div class="panel">
+                    <h3 style="margin-top:0;">Chọn Cửa Cược:</h3>
+                    <div class="bet-types">
+                        <button class="btn bet-btn" onclick="selectType('Gà')" id="btn-Ga">GÀ (10-40)</button>
+                        <button class="btn bet-btn" onclick="selectType('Vịt')" id="btn-Vit">VỊT (41-59)</button>
+                        <button class="btn bet-btn" onclick="selectType('Ngỗng')" id="btn-Ngong">NGỖNG (60-100)</button>
+                    </div>
+                    <div class="bet-amounts">
+                        <button class="btn amount-btn" onclick="selectAmount(100000)" id="amt-100k">100k</button>
+                        <button class="btn amount-btn" onclick="selectAmount(200000)" id="amt-200k">200k</button>
+                        <button class="btn amount-btn" onclick="selectAmount(500000)" id="amt-500k">500k</button>
+                        <button class="btn amount-btn" onclick="selectAmount('ALL')" id="amt-all">ALL IN</button>
+                    </div>
+                    <button class="btn action-bet" id="btn-place-bet" onclick="placeBet()">ĐẶT CƯỢC</button>
+                    <div id="bet-status" style="margin-top: 10px; text-align: center; color: #00d2ff;">Chưa đặt cược</div>
                 </div>
             </div>
 
-            <div class="bet-buttons">
-                <button onclick="placeBet(100000)">100K</button>
-                <button onclick="placeBet(200000)">200K</button>
-                <button onclick="placeBet(500000)">500K</button>
-                <button class="btn-allin" onclick="placeBet('ALL')">ALL IN</button>
-            </div>
-        </div>
+            <div class="side-panel">
+                <!-- Lịch sử cá nhân -->
+                <div class="panel history-box">
+                    <h3 style="margin-top:0;">Lịch sử Cược</h3>
+                    <div id="history-list"></div>
+                </div>
 
-        <!-- History -->
-        <div class="history-area">
-            <div class="box-title">Lịch sử cầu</div>
-            <div class="history-list" id="historyList"></div>
-        </div>
-    </div>
-
-    <div id="notification"></div>
-
-    <script>
-        // ==========================================
-        // 1. CẤU HÌNH FIREBASE - ĐÃ CẬP NHẬT CỦA BẠN
-        // ==========================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyBdjd7qONQQuUAmkMK-rP-zCp06rnyRYks",
-            authDomain: "gamevn-f6cc8.firebaseapp.com",
-            databaseURL: "https://gamevn-f6cc8-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "gamevn-f6cc8",
-            storageBucket: "gamevn-f6cc8.firebasestorage.app",
-            messagingSenderId: "147617412521",
-            appId: "1:147617412521:web:8143e0c93823accc9480b8"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // ==========================================
-        // 2. BIẾN TOÀN CỤC & INIT NGƯỜI CHƠI
-        // ==========================================
-        let playerName = localStorage.getItem("gvn_player");
-        if (!playerName) {
-            playerName = prompt("Nhập tên hiển thị của bạn (Không dấu, viết liền):");
-            if (!playerName) playerName = "Guest" + Math.floor(Math.random()*9999);
-            localStorage.setItem("gvn_player", playerName);
-        }
-        document.getElementById('playerNameDisplay').innerText = playerName;
-
-        let myBalance = 5000000;
-        let selectedCategory = null;
-        let currentBetAmount = 0;
-        let serverTimeOffset = 0;
-        let lastProcessedRollId = -1;
-
-        // Đồng bộ thời gian thực với server Firebase
-        db.ref('.info/serverTimeOffset').on('value', snap => {
-            serverTimeOffset = snap.val() || 0;
-        });
-
-        // Khởi tạo/Lấy dữ liệu người chơi
-        const userRef = db.ref('users/' + playerName);
-        userRef.once('value', snap => {
-            if (!snap.exists()) {
-                userRef.set({ balance: 5000000 });
-            }
-        });
-        userRef.on('value', snap => {
-            if(snap.exists()) {
-                myBalance = snap.val().balance;
-                document.getElementById('balanceDisplay').innerText = myBalance.toLocaleString();
-            }
-        });
-
-        // ==========================================
-        // 3. LOGIC GAME (Tạo kết quả & Chống trùng)
-        // ==========================================
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        function generateNextRoll(history, totalRolls) {
-            let isJackpot = ((totalRolls + 1) % 10 === 0);
-            let cats = ["Ga", "Vit", "Ngong"];
-
-            // Ràng buộc: Không quá 5 lần liên tiếp
-            let recent5 = history.slice(-5);
-            let same5 = (recent5.length === 5 && recent5.every(v => v === recent5[0])) ? recent5[0] : null;
-
-            // Ràng buộc: Không xuất hiện quá 5 lần trong 7 lần (Tức là xét 6 lượt gần nhất, không được >=5)
-            let recent6 = history.slice(-6);
-            let count6 = { Ga:0, Vit:0, Ngong:0 };
-            recent6.forEach(c => count6[c]++);
-
-            cats = cats.filter(c => c !== same5 && count6[c] < 5);
-            if (cats.length === 0) cats = ["Ga", "Vit", "Ngong"]; // Fallback an toàn
-
-            let chosen, score;
-            if (isJackpot) {
-                let jpCats = cats.filter(c => c === "Ga" || c === "Ngong");
-                if (jpCats.length === 0) jpCats = ["Ga", "Ngong"];
-                chosen = jpCats[getRandomInt(0, jpCats.length - 1)];
-                score = (chosen === "Ga") ? 10 : 100;
-            } else {
-                chosen = cats[getRandomInt(0, cats.length - 1)];
-                if (chosen === "Ga") score = getRandomInt(11, 40);
-                else if (chosen === "Vit") score = getRandomInt(41, 59);
-                else score = getRandomInt(60, 99);
-            }
-
-            // Tách điểm vào 10 xúc xắc (1-10)
-            let dice = Array(10).fill(1);
-            let sum = 10;
-            while (sum < score) {
-                let idx = getRandomInt(0, 9);
-                if (dice[idx] < 10) {
-                    dice[idx]++;
-                    sum++;
-                }
-            }
-
-            return { score, chosen, dice, isJackpot };
-        }
-
-        // ==========================================
-        // 4. VÒNG LẶP THỜI GIAN & ĐỒNG BỘ
-        // ==========================================
-        const gameStateRef = db.ref('gameState');
-        let currentEndTime = 0;
-        let isRolling = false;
-
-        gameStateRef.on('value', snap => {
-            let data = snap.val();
-            if (!data) return;
-
-            currentEndTime = data.endTime;
-            
-            // Render lịch sử
-            if (data.history) {
-                const histDiv = document.getElementById('historyList');
-                histDiv.innerHTML = '';
-                data.history.forEach(item => {
-                    histDiv.innerHTML += `<div class="hist-dot dot-${item}">${item[0]}</div>`;
-                });
-            }
-
-            // Render xúc xắc nếu qua lượt mới
-            if (data.rollId !== lastProcessedRollId && data.dice) {
-                if (lastProcessedRollId !== -1) {
-                    resolveBets(data); // Tính tiền
-                }
-                lastProcessedRollId = data.rollId;
-                
-                // Cập nhật UI Xúc xắc
-                const diceCont = document.getElementById('diceContainer');
-                diceCont.innerHTML = '';
-                data.dice.forEach(val => {
-                    diceCont.innerHTML += `<div class="die">${val}</div>`;
-                });
-
-                let resText = `Tổng điểm: <span style="color:var(--primary)">${data.score}</span> - `;
-                if (data.category === "Ga") resText += "<span style='color:var(--ga-color)'>GÀ</span>";
-                if (data.category === "Vit") resText += "<span style='color:var(--vit-color)'>VỊT</span>";
-                if (data.category === "Ngong") resText += "<span style='color:var(--ngong-color)'>NGỔNG</span>";
-                
-                if (data.isJackpot) {
-                    resText += ` <div class="jackpot-text">🎉 NỔ HŨ 🎉</div>`;
-                }
-                document.getElementById('resultDisplay').innerHTML = resText;
-                
-                // Reset cược cho lượt mới
-                selectedCategory = null;
-                currentBetAmount = 0;
-                document.querySelectorAll('.bet-col').forEach(c => c.classList.remove('active'));
-                document.getElementById('betAmt-Ga').innerText = "0";
-                document.getElementById('betAmt-Vit').innerText = "0";
-                document.getElementById('betAmt-Ngong').innerText = "0";
-                document.getElementById('currentBetInfo').innerText = "Chưa cược";
-            }
-        });
-
-        // Vòng lặp đếm ngược mỗi 100ms
-        setInterval(() => {
-            let now = Date.now() + serverTimeOffset;
-            let remain = currentEndTime - now;
-            
-            if (remain > 0) {
-                document.getElementById('timerDisplay').innerText = (remain / 1000).toFixed(1) + "s";
-                document.getElementById('diceContainer').classList.remove('rolling');
-                isRolling = false;
-            } else {
-                document.getElementById('timerDisplay').innerText = "Đang quay...";
-                if (!isRolling) {
-                    document.getElementById('diceContainer').classList.add('rolling');
-                    isRolling = true;
-                    // Ai đó ngẫu nhiên kích hoạt transaction để tránh nhiều người ghi cùng lúc
-                    setTimeout(() => triggerMasterRoll(), Math.random() * 500);
-                }
-            }
-        }, 100);
-
-        function triggerMasterRoll() {
-            gameStateRef.transaction(currentData => {
-                if (!currentData) {
-                    return { endTime: Date.now() + serverTimeOffset + 12000, history: [], rollId: 1, totalRolls: 0 };
-                }
-                let now = Date.now() + serverTimeOffset;
-                if (currentData.endTime > now) return; // Người khác đã xử lý
-
-                let history = currentData.history || [];
-                let total = currentData.totalRolls || 0;
-                let next = generateNextRoll(history, total);
-
-                let newHistory = [...history, next.chosen];
-                if (newHistory.length > 30) newHistory.shift();
-
-                return {
-                    endTime: now + 12000,
-                    score: next.score,
-                    dice: next.dice,
-                    category: next.chosen,
-                    isJackpot: next.isJackpot,
-                    history: newHistory,
-                    rollId: (currentData.rollId || 0) + 1,
-                    totalRolls: total + 1
-                };
-            });
-        }
-
-        // ==========================================
-        // 5. HỆ THỐNG CƯỢC & TÍNH TIỀN
-        // ==========================================
-        function selectCategory(cat) {
-            if (currentBetAmount > 0 && selectedCategory !== cat) {
-                showNoti("Chỉ được cược 1 loại (Gà/Vịt/Ngổng)!", false);
-                return;
-            }
-            selectedCategory = cat;
-            document.querySelectorAll('.bet-col').forEach(c => c.classList.remove('active'));
-            document.getElementById('col-' + cat).classList.add('active');
-        }
-
-        function placeBet(amt) {
-            let now = Date.now() + serverTimeOffset;
-            if (currentEndTime - now < 1500) {
-                showNoti("Hết thời gian cược!", false);
-                return;
-            }
-            if (!selectedCategory) {
-                showNoti("Hãy chọn Gà, Vịt hoặc Ngổng trước!", false);
-                return;
-            }
-
-            let realAmt = amt === 'ALL' ? myBalance : amt;
-            if (realAmt <= 0 || realAmt > myBalance) {
-                showNoti("Không đủ số dư!", false);
-                return;
-            }
-
-            // Trừ tiền ngay lập tức
-            userRef.transaction(user => {
-                if (user && user.balance >= realAmt) {
-                    user.balance -= realAmt;
-                    return user;
-                }
-                return;
-            }, (error, committed) => {
-                if (committed) {
-                    currentBetAmount += realAmt;
-                    document.getElementById('betAmt-' + selectedCategory).innerText = currentBetAmount.toLocaleString();
-                    document.getElementById('currentBetInfo').innerText = `${currentBetAmount.toLocaleString()} vào ${selectedCategory}`;
-                    showNoti(`Đã cược ${realAmt.toLocaleString()}!`, true);
-                }
-            });
-        }
-
-        function resolveBets(resultData) {
-            if (currentBetAmount > 0 && selectedCategory) {
-                if (selectedCategory === resultData.category) {
-                    // Thắng
-                    let multiplier = resultData.isJackpot ? 21 : 3; // Nổ hũ x18 + x3 = x21
-                    let winAmt = currentBetAmount * multiplier;
+                <!-- Chat & Chuyển Tiền -->
+                <div class="panel social-box">
+                    <h3 style="margin-top:0;">Kênh Chat Tổng</h3>
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-input-text" placeholder="Nhập tin nhắn...">
+                        <button class="btn" style="margin:0;" onclick="sendMessage()">Gửi</button>
+                    </div>
                     
-                    userRef.transaction(user => {
-                        if(user) user.balance += winAmt;
-                        return user;
-                    });
-                    showNoti(`Thắng rồi! +${winAmt.toLocaleString()} VNĐ`, true);
-                } else {
-                    // Thua (Tiền đã bị trừ lúc cược)
-                    showNoti(`Thua rồi! Mất -${currentBetAmount.toLocaleString()} VNĐ`, false);
-                }
-            }
-        }
+                    <div class="transfer-box">
+                        <h4 style="margin:5px 0;">Chuyển tiền cho người chơi</h4>
+                        <input type="email" id="transfer-email" placeholder="Email người nhận">
+                        <input type="number" id="transfer-amount" placeholder="Số tiền VNĐ">
+                        <button class="btn" style="width:100%; margin:0;" onclick="transferMoney()">Chuyển Tiền</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // ==========================================
-        // 6. CHUYỂN TIỀN & CHAT
-        // ==========================================
-        function transferMoney() {
-            let target = document.getElementById('transferUser').value.trim();
-            let amt = parseInt(document.getElementById('transferAmt').value);
-            
-            if (!target || amt <= 0 || isNaN(amt) || target === playerName) {
-                showNoti("Thông tin không hợp lệ!", false); return;
-            }
-
-            userRef.transaction(user => {
-                if (user && user.balance >= amt) {
-                    user.balance -= amt;
-                    return user;
-                }
-                return; // Không đủ tiền abort
-            }, (err, comm) => {
-                if (comm) {
-                    db.ref('users/' + target).transaction(tUser => {
-                        if(tUser) tUser.balance += amt;
-                        else return { balance: 5000000 + amt }; // User mới
-                        return tUser;
-                    });
-                    showNoti(`Đã chuyển ${amt.toLocaleString()} cho ${target}`, true);
-                } else {
-                    showNoti("Số dư không đủ!", false);
-                }
-            });
-        }
-
-        // Chat
-        const chatRef = db.ref('chat');
-        chatRef.limitToLast(20).on('child_added', snap => {
-            let msg = snap.val();
-            const cb = document.getElementById('chatBox');
-            cb.innerHTML += `<div style="margin-bottom:5px"><b>${msg.user}:</b> <span style="color:#ccc">${msg.text}</span></div>`;
-            cb.scrollTop = cb.scrollHeight;
-        });
-
-        function sendChat() {
-            let input = document.getElementById('chatMsg');
-            let text = input.value.trim();
-            if (text) {
-                chatRef.push({ user: playerName, text: text, time: Date.now() });
-                input.value = '';
-            }
-        }
-
-        // ==========================================
-        // UTILS
-        // ==========================================
-        function showNoti(msg, isSuccess) {
-            const noti = document.getElementById('notification');
-            noti.innerText = msg;
-            noti.className = isSuccess ? 'show' : 'show lose';
-            setTimeout(() => { noti.className = ''; }, 3000);
-        }
-
-    </script>
+    <!-- KHAI BÁO TYPE="MODULE" ĐỂ SỬ DỤNG LỆNH IMPORT FIREBASE V9+ -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
